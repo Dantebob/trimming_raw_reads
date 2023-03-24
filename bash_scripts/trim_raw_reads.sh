@@ -20,7 +20,7 @@ if [ ! "$l" ]; then
 fi
 
 begin=`date +%s`
-wd=~/BIOL_4310/Exercises/Exercise_4/trimming_raw_reads
+wd=~/Biol_4310/example_4/trimming_raw_reads
 
 echo "load required modules"
 module load fastqc/0.11.4
@@ -65,10 +65,10 @@ cd raw_reads
 ls
 pwd
 while read i; do 
-  	fastqc "$i"_1.fastq.gz # insert description here
-  	fastqc "$i"_2.fastq.gz # insert description here
+  	fastqc "$i"_1.fastq.gz # run fastqc onfirst read file which is a file named after sample id in sra_list
+  	fastqc "$i"_2.fastq.gz # run fastqc on second read file
 done<../sra_files/sra_list
-multiqc . # insert description here
+multiqc . # run multiqc in current directory
 cd ..
 
 ####################################################
@@ -82,13 +82,17 @@ ls *.fastq.gz | cut -d "." -f "1" | cut -d "_" -f "1" | sort | uniq > fastq_list
 while read z ; do 
 # Perform trimming
 # -----------------------------------------------
-# Insert description of -i and -I parameters here
-# Insert description of -m, --merged_out, --out1, and --out2 parameters here
-# Insert description of -e and -q here
-# Insert description of -u and -l here
-# Insert description of --adapter_sequence and --adapter_sequence_r2 here
-# Insert description of -M, -W, -5, and -3 here
-# Insert description of -c here
+# -i is input file name
+# -m is TRUE or FALSE to merge pair-end reads into single read
+# -merged_out is output filename for merged reads
+# -out1 and out2 are output filenames for read1 and read2 that were not merged
+# -e is required average phred value for reads to be kept
+# -l is minimum required length of reads
+# -q is a minimum phred score and -u is a precentage. if the percentage of nucleotides below the -q phred score is above -u then the read is discarded
+# --adapter_sequence --adapter_sequence_r2 are the adapters used for read1 and read2
+# -W and -M, are window size and minimum avg phred score required for the window
+# -5 and -3 are True or False whehter to trim leading sequences or trailing sequences with averages less than -M
+# -c is on or off to use overlap analysis to correct bases with low qualiy
 # -----------------------------------------------
 fastp -i "$z"_1.fastq.gz -I "$z"_2.fastq.gz \
       -m --merged_out $wd/cleaned_reads/merged_reads/"$z"_merged.fastq \
@@ -116,7 +120,7 @@ echo "Perform check of cleaned read files"
 cd $wd/cleaned_reads/merged_reads
 pwd
 while read i; do 
-	fastqc "$i"_merged.fastq.gz # insert description here
+	fastqc "$i"_merged.fastq.gz # run fastqc on merged reads
 done<$wd/sra_files/sra_list
 
  }
